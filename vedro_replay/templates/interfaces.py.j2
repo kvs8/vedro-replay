@@ -1,0 +1,12 @@
+import httpx
+import vedro
+
+
+class Api(vedro.Interface):
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url
+
+    async def do_request(self, url: str):
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            return await client.get(self.base_url + url)
+

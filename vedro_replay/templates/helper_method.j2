@@ -1,0 +1,7 @@
+
+
+def {{helper_method_name}}(response) -> Response:
+    exclude_headers = basic_headers_exclude() + []
+    exclude_body = basic_body_exclude() + []
+    return filter_response(JsonResponse.from_response(response), exclude_headers, exclude_body)
+
