@@ -1,0 +1,7 @@
+jinja2==3.1.2
+httpx==0.24.0
+cabina==0.7.1
+d42==1.5.1
+vedro==1.8.3
+vedro-valera-validator==1.1.0
+requests-toolbelt==1.0.0
