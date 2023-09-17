@@ -1,0 +1,7 @@
+### Запрос с установкой заголовка "Authorization" для доступа к защищенному ресурсу
+GET http://{{host}}/1.0/secure-resource
+X-Forwarded-For: 213.87.224.239
+Authorization: Bearer 25b4fe6e-89d1-4b1a-8bd9-05624f7e7488
+
+###
+GET http://{{host}}/1.0/secure-resource

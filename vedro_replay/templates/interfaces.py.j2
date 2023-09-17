@@ -1,12 +1,14 @@
-import httpx
-import vedro
+from vedro_httpx import AsyncHTTPInterface, Response
+
+from vedro_replay import Request
 
 
-class Api(vedro.Interface):
-    def __init__(self, base_url: str) -> None:
-        self.base_url = base_url
-
-    async def do_request(self, url: str):
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            return await client.get(self.base_url + url)
+class Api(AsyncHTTPInterface):
+    async def do_request(self, request: Request) -> Response:
+        return await self._request(
+            method=request.method,
+            url=request.request_uri,
+            headers=request.headers,
+            json=request.json_body
+        )
 

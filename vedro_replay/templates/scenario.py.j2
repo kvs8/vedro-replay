@@ -3,14 +3,15 @@ from contexts.api import golden_response, testing_response
 from d42 import from_native
 from helpers.helpers import {{helper_method_name}}
 
-from vedro_replay import replay
+from vedro_replay import Request, replay
 
 
 class Scenario(vedro.Scenario):
-    subject = "do request: {{api_route}}"
+    subject = "do request: {{api_route}}. {subject}"
 
     @replay("{{path_requests}}/{{file_requests}}")
-    def __init__(self, request):
+    def __init__(self, subject: str, request: Request):
+        self.subject = subject
         self.request = request
 
     async def given_golden_response(self):

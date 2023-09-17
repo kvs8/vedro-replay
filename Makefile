@@ -10,9 +10,13 @@ install:
 install-vedro-replay:
 	python3 setup.py install
 
-.PHONY: test
-test:
+.PHONY: e2e
+e2e:
 	cd tests/e2e && vedro run -vvv
+
+.PHONY: unit
+unit:
+	cd tests/unit && pytest
 
 .PHONY: check-types
 check-types:

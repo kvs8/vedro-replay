@@ -7,6 +7,8 @@ from typing import Any, List
 
 from jinja2 import Environment, FileSystemLoader, Template
 
+from .parser import parse_requests
+
 
 class GeneratorException(Exception):
     pass
@@ -46,7 +48,9 @@ class Generator(ABC):
 
     @classmethod
     def generation_options(cls) -> List[str]:
-        return [key for key, value in cls.__dict__.items() if type(value) == FunctionType and not key.startswith('_')]
+        return [
+            key for key, value in cls.__dict__.items() if isinstance(value, FunctionType) and not key.startswith('_')
+        ]
 
 
 class MainGenerator(Generator):
@@ -149,7 +153,7 @@ class MainGenerator(Generator):
 
     @staticmethod
     def _get_helper_method_name(api_route: str) -> str:
-        return 'prepare' + api_route.replace('/', '_').replace('.', '')
+        return 'prepare' + api_route.replace('/', '_').replace('.', '').replace('-', '_')
 
     @staticmethod
     def _get_scenario_name(file_requests: str) -> str:
@@ -164,8 +168,8 @@ class MainGenerator(Generator):
         ]
 
     def _get_route(self, file_path: str) -> str:
-        with open(f'{self.__path_requests}/{file_path}') as requests_file:
-            return requests_file.readline().split('?')[0].strip()
+        requests = parse_requests(f'{self.__path_requests}/{file_path}')
+        return requests[0].path
 
     def _get_unique_routes(self) -> List[str]:
         routes = [self._get_route(file_requests) for file_requests in self._get_file_with_requests()]

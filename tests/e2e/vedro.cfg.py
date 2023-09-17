@@ -8,5 +8,5 @@ class Config(vedro.Config):
         class ValeraValidator(valera_validator.ValeraValidator):
             enabled = True
 
-        class RemoteMock(vedro_jj.RemoteMock):
+        class RemoteMock(vedro_jj.VedroJJ):
             enabled = True
