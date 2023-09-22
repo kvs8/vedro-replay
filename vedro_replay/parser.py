@@ -2,9 +2,11 @@ import json
 import string
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
+from pathlib import PurePosixPath
 from typing import List
 
 from pyparsing import (
+    CharsNotIn,
     Combine,
     OneOrMore,
     Optional,
@@ -14,6 +16,7 @@ from pyparsing import (
     ZeroOrMore,
     alphas,
     printables,
+    restOfLine,
 )
 
 from .request import Request
@@ -41,27 +44,23 @@ class RequestParser(ABC):
 class TxtRequestParser(RequestParser):
     @classmethod
     def parse(cls, data: str) -> List[Request]:
-        return [Request(method="GET", request_uri=request_uri) for request_uri in data.splitlines()]
+        return [Request(method="GET", url=url) for url in data.splitlines()]
 
 
 class HttpRequestParser(RequestParser):
-    rus_alphas = "йцукеёнгшщзхъфывапролджэячсмитьбюЙЦУКЕЁНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ"
-    symbols = printables + rus_alphas
-
     delimiter_string = Combine(
         Suppress("###") +
         Optional(Suppress(ZeroOrMore(" "))) +
-        Optional(Word(symbols + " ")) +
-        Suppress("\n")
+        restOfLine
     ).set_name("delimiter string with the format '### comment'").set_results_name("comment")
 
     method = Word(string.ascii_uppercase).set_name("http method").set_results_name("method")
 
-    request_uri = Combine(
-        "http" + Optional("s") +
-        "://{{host}}" +
-        Word(symbols)
-    ).set_name("request uri with the format http(s)://{{host}}/...").set_results_name("request_uri")
+    url = Combine(
+        Suppress("http" + Optional("s")) +
+        Suppress("://{{host}}") +
+        restOfLine
+    ).set_name("request uri with the format http(s)://{{host}}/...").set_results_name("url")
 
     header_name = Word(alphas + "-").set_results_name("header_name")
     header_value = Word(printables + " ").set_results_name("header_value")
@@ -73,20 +72,20 @@ class HttpRequestParser(RequestParser):
     json_body = Combine(
         "{" +
         Optional(Suppress("\n")) +
-        OneOrMore(Word(symbols + " ") + Optional(Suppress("\n")))
+        OneOrMore(CharsNotIn("\n") + Optional(Suppress("\n")))
     ).set_results_name("json_body")
 
     request = (
             delimiter_string +
             method +
-            request_uri +
+            url +
             Optional(headers) +
             Optional(json_body)
     ).set_results_name("request").set_parse_action(
         lambda t: {
             "comment": t.comment or "",
             "method": t.method,
-            "request_uri": t.request_uri,
+            "url": t.url,
             "headers": t.headers or None,
             "json_body": json.loads(t.json_body) if t.json_body else None
         }
@@ -104,10 +103,12 @@ def parse_requests(requests_file: str) -> List[Request]:
     with open(requests_file) as f:
         data = f.read()
 
+    file_suffix = PurePosixPath(requests_file).suffix
+
     try:
-        if ".http" in requests_file:
+        if file_suffix == ".http":
             return HttpRequestParser.parse(data=data)
-        elif ".txt" in requests_file:
+        elif file_suffix == ".txt":
             return TxtRequestParser.parse(data=data)
         else:
             raise UnsupportedRequestFileFormat(f"File format {requests_file} not supported")

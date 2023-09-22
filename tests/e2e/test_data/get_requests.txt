@@ -1,2 +1,2 @@
-http://{{host}}/1.0/secure-resource?q=123
-http://{{host}}/1.0/secure-resource?q=example
+/1.0/secure-resource?q=123
+/1.0/secure-resource?q=example

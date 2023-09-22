@@ -14,5 +14,5 @@ def execution_directory(dir_launch: str, dir_requests: str, file_requests: str) 
 
     subprocess.run(['cp', 'test_data/' + file_requests, f"{dir_launch}/{dir_requests}/{file_requests}"], check=True)
 
-    os.environ.setdefault('GOLDEN_API_URL', 'localhost:8080')
-    os.environ.setdefault('TESTING_API_URL', 'localhost:8080')
+    os.environ.setdefault('GOLDEN_API_URL', 'http://localhost:8080')
+    os.environ.setdefault('TESTING_API_URL', 'http://localhost:8080')

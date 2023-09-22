@@ -10,60 +10,44 @@ from vedro_replay.request import Request
 
 
 class Scenario(vedro.Scenario):
-    subject = 'launch vedro-replay tests: {subject}'
+    subject = 'launch vedro-replay tests by requests with headers: {subject}'
 
-    @params('default generate by .txt file',
+    @params('GET requests from .http file',
             'requests',
-            'get_requests.txt',
+            'get_requests_with_headers.http',
             [
                 Request(
+                    comment='Request with the "Authorization" header setting to access a protected resource',
                     method="GET",
-                    request_uri="http://{{host}}/1.0/secure-resource?q=123",
-                ),
-                Request(
-                    method="GET",
-                    request_uri="http://{{host}}/1.0/secure-resource?q=example",
-                ),
-            ]
-            )
-    @params('default generate by GET requests from .http file',
-            'requests',
-            'get_requests.http',
-            [
-                Request(
-                    comment='Запрос с установкой заголовка "Authorization" для доступа к защищенному ресурсу',
-                    method="GET",
-                    request_uri="http://{{host}}/1.0/secure-resource",
-                ),
-                Request(
-                    method="GET",
-                    request_uri="http://{{host}}/1.0/secure-resource",
-                ),
-            ]
-            )
-    @params('generate with --path-requests by POST requests from .http file',
-            'special_requests',
-            'post_requests.http',
-            [
-                Request(
-                    comment='Назначение прав пользователю',
-                    method="POST",
-                    request_uri="http://{{host}}/1.0/admin-users",
-                    json_body={
-                        "id": 17399, "user": "a82ec47d-9b72-41d7-9b4d-f36427561dd6", "data": [
-                            {"item": {"value": "Значение"}}
-                        ]
+                    url="/1.0/secure-resource",
+                    headers={
+                        "X-Forwarded-For": "213.87.224.239",
+                        "Authorization": "Bearer 25b4fe6e-89d1-4b1a-8bd9-05624f7e7488"
                     }
                 ),
                 Request(
-                    comment='Назначение прав пользователю',
-                    method="POST",
-                    request_uri="http://{{host}}/1.0/admin-users",
-                    json_body={
-                        "id": 17399, "user": "a82ec47d-9b72-41d7-9b4d-f36427561dd6", "data": [
-                            {"item": {"value": "Значение"}}
-                        ]
+                    comment='Request with cookie',
+                    method="GET",
+                    url="/1.0/secure-resource?query=value",
+                    headers={
+                        "Cookie": "session_id=25b4fe6e-89d1-4b1a-8bd9-05624f7e7488",
                     }
+                ),
+            ]
+            )
+    @params('POST requests from .http file',
+            'requests',
+            'post_requests_with_headers.http',
+            [
+                Request(
+                    comment='POST request with headers',
+                    method="POST",
+                    url="/v1/users",
+                    headers={
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
+                    },
+                    json_body={"name": "John Doe", "email": "johndoe@example.com"}
                 ),
             ]
             )
@@ -103,7 +87,7 @@ class Scenario(vedro.Scenario):
                 'request': {
                     'method': request.method,
                     'path': request.path,
-                    'body': request.json_body or b'',
+                    'headers': [...] + [[hn, hv] for hn, hv in request.headers.items()] + [...]
                 }
-            } for request in self.requests * 2
+            } for request in [r for r in self.requests for _ in range(2)]
         ]

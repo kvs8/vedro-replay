@@ -2,9 +2,9 @@
 POST http://{{host}}/1.0/admin-users
 Content-Type: application/json
 
-{"id": 17399, "user": "a82ec47d-9b72-41d7-9b4d-f36427561dd6", "data": [{"item": {"value": "Значение"}}]}
+{"id": 17399, "user": "a82ec47d-9b72-41d7-9b4d-f36427561dd6", "data": [{"item": {"key": "value"}}]}
 
-### Назначение прав пользователю
+### Assigning rights to a user
 POST http://{{host}}/1.0/admin-users
 Content-Type: application/json
 
@@ -14,7 +14,12 @@ Content-Type: application/json
   "data": [
     {
       "item": {
-        "value": "Значение"
+        "key": "value"
+      }
+    },
+    {
+      "item2": {
+        "key2": "value2"
       }
     }
   ]
