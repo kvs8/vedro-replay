@@ -26,7 +26,7 @@ class Scenario(vedro.Scenario):
                 ),
             ]
             )
-    @params('.http file. Generate with --path-requests',
+    @params('.http file. Generate with --requests-dir',
             'special_requests',
             'get_requests.http',
             [

@@ -43,7 +43,7 @@ options:
 $ vedro-replay genearate -h
 ```
 ```
-usage: vedro-replay generate [-h] [--path-requests PATH_REQUESTS] [--force] 
+usage: vedro-replay generate [-h] [--requests-dir REQUESTS_DIR] [--force] 
                     [{all,vedro_cfg,config,interfaces,contexts,helpers,helpers_methods,scenarios}] - by default all
 
 positional arguments:
@@ -52,13 +52,13 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --path-requests PATH_REQUESTS
+  --requests-dir REQUESTS_DIR
                         The path to the directory containing the request files
   --force               Forced regeneration. The files will be overwritten
 ```
 
 To be able to generate a test, you need to have a directory with files containing requests 
-(`requests` directory is expected by default, you can specify a specific directory using the `--path_requests` argument).
+(`requests` directory is expected by default, you can specify a specific directory using the `--requests-dir` argument).
 
 Example:
 ```shell

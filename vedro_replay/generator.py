@@ -74,9 +74,9 @@ class MainGenerator(Generator):
     __FILE_VEDRO_CFG = 'vedro.cfg.py'
     __FILE_CONFIG = 'config.py'
 
-    def __init__(self, path_requests: str, force: bool, log: logging.Logger):
+    def __init__(self, requests_dir: str, force: bool, log: logging.Logger):
         super().__init__(force=force, log=log)
-        self.__path_requests = path_requests
+        self.__requests_dir = requests_dir
         self.__templates = Environment(loader=FileSystemLoader(self.__PATH_TEMPLATES))
 
     def all(self) -> None:
@@ -145,7 +145,7 @@ class MainGenerator(Generator):
         self._generate_by_template(
             file_path=file_path,
             template_name=self.__TEMPLATE_SCENARIO,
-            path_requests=self.__path_requests,
+            requests_dir=self.__requests_dir,
             api_route=route,
             file_requests=file_requests,
             helper_method_name=self._get_helper_method_name(route)
@@ -160,15 +160,15 @@ class MainGenerator(Generator):
         return file_requests.split('.')[0]
 
     def _get_file_with_requests(self) -> List[str]:
-        if not os.path.exists(self.__path_requests):
-            raise DirectoryWithRequestsNotFound(f"The directory with requests: {self.__path_requests} was not found")
+        if not os.path.exists(self.__requests_dir):
+            raise DirectoryWithRequestsNotFound(f"The directory with requests: {self.__requests_dir} was not found")
         return [
-            file for file in os.listdir(self.__path_requests)
-            if os.path.isfile(os.path.join(self.__path_requests, file))
+            file for file in os.listdir(self.__requests_dir)
+            if os.path.isfile(os.path.join(self.__requests_dir, file))
         ]
 
     def _get_route(self, file_path: str) -> str:
-        requests = parse_requests(f'{self.__path_requests}/{file_path}')
+        requests = parse_requests(f'{self.__requests_dir}/{file_path}')
         return requests[0].path
 
     def _get_unique_routes(self) -> List[str]:
@@ -184,7 +184,7 @@ def generate(args: Any) -> None:
     log = logging.getLogger("Generator")
 
     try:
-        getattr(MainGenerator(path_requests=args.path_requests, force=args.force, log=log), args.option)()
+        getattr(MainGenerator(requests_dir=args.requests_dir, force=args.force, log=log), args.option)()
     except DirectoryWithRequestsNotFound as e:
         log.critical(f'{e}. By default, the "requests" directory was expected. '
-                     'Use --path-requests to specify another')
+                     'Use --requests-dir to specify another')

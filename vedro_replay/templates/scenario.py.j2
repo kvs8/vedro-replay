@@ -9,7 +9,7 @@ from vedro_replay import Request, replay
 class Scenario(vedro.Scenario):
     subject = "do request: {{api_route}}. {subject}"
 
-    @replay("{{path_requests}}/{{file_requests}}")
+    @replay("{{requests_dir}}/{{file_requests}}")
     def __init__(self, subject: str, request: Request):
         self.subject = subject
         self.request = request

@@ -1,6 +1,6 @@
 .PHONY: clean
 clean:
-	rm -r build dist vedro_replay.egg-info
+	rm -r build dist vedro_replay.egg-info .mypy_cache .pytest_cache
 
 .PHONY: install
 install:
