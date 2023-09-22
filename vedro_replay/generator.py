@@ -185,6 +185,10 @@ def generate(args: Any) -> None:
 
     try:
         getattr(MainGenerator(requests_dir=args.requests_dir, force=args.force, log=log), args.option)()
+        log.info("\nThe necessary files have been generated!\n"
+                 "To run the tests, you need to specify two api url to which request will be sent."
+                 "You need to set environment variables in any convenient way, for example:\n"
+                 "export GOLDEN_API_URL=https://golden.app && export TESTING_API_URL=https://test.app && vedro run")
     except DirectoryWithRequestsNotFound as e:
-        log.critical(f'{e}. By default, the "requests" directory was expected. '
-                     'Use --requests-dir to specify another')
+        log.critical(f"{e}. By default, the 'requests' directory was expected. "
+                     "Use --requests-dir to specify another")
