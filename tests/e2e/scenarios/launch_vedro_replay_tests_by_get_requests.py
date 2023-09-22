@@ -69,7 +69,7 @@ class Scenario(vedro.Scenario):
 
     def then_test_was_started_with_correct_subject(self):
         for request in self.requests:
-            assert f'do request: {request.path}. {request.comment}' in self.stdout_vedro_test
+            assert f"do request: {request.path} (comment='{request.comment}')" in self.stdout_vedro_test
 
     def and_then_number_requests_sent_should_be_correct(self):
         assert self.api_mock.history == HistorySchema % [
