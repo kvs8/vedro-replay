@@ -26,12 +26,12 @@ class VedroReplayCLI(AbstractCLI):
 
     async def run(self) -> Tuple[str, str]:
         return await self._run(
-            command=f'vedro-replay generate {self.__path_requests()}',
+            command=f'vedro-replay generate {self.__requests_dir()}',
             cwd=f'{os.getcwd()}/{self.dir_launch}'
         )
 
-    def __path_requests(self) -> str:
-        return '' if self.dir_requests == 'requests' else f'--path-requests={self.dir_requests}'
+    def __requests_dir(self) -> str:
+        return '' if self.dir_requests == 'requests' else f'--requests-dir={self.dir_requests}'
 
 
 class VedroTestCLI(AbstractCLI):

@@ -1,0 +1,39 @@
+### Request without parameters
+GET https://{{host}}/
+
+### API request to get a list of all users
+GET https://{{host}}/users
+
+### Request to search for a book by title
+GET https://{{host}}/search?query=Harry+Potter
+
+### Request for information about a product by its ID
+GET https://{{host}}/product?id=12345
+
+### Request with setting the "Authorization" header to access a protected resource
+GET https://{{host}}/secure-resource
+Authorization: Bearer 25b4fe6e-89d1-4b1a-8bd9-05624f7e7488
+
+### Request with the header "User-Agent"
+GET https://{{host}}/secure-resource
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0
+
+### Request specifying the "Accept" header for requesting JSON data
+GET https://{{host}}/data
+Accept: application/json
+
+### Request with custom header "X-Custom-Header" for transmitting additional data
+GET https://{{host}}/resource
+X-Custom-Header: SomeCustomValue
+
+### Request with the "Accept-Language" header to specify the preferred language
+GET https://{{host}}/data
+Accept-Language: en-US
+
+### Request with custom header "X-Request-Id" to identify the request
+GET https://{{host}}/data
+X-Request-Id: 12345
+
+### Request with the transfer of a session cookie for user authentication
+GET https://{{host}}/dashboard
+Cookie: session_id=25b4fe6e-89d1-4b1a-8bd9-05624f7e7488

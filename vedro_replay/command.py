@@ -12,7 +12,7 @@ def command() -> None:
         'option',  default='all', nargs='?', choices=MainGenerator.generation_options(), help='Generation option',
     )
     generate_parser.add_argument(
-        '--path-requests', help='The path to the directory containing the request files', default='requests'
+        '--requests-dir', help='The path to the directory containing the request files', default='requests'
     )
     generate_parser.add_argument(
         '--force', help='Forced regeneration. The files will be overwritten', action='store_true'

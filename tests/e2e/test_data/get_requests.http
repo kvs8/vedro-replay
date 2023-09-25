@@ -1,0 +1,5 @@
+### GET Request
+GET http://{{host}}/1.0/secure-resource
+
+###
+GET http://{{host}}/1.0/secure-resource?data=all&search=value

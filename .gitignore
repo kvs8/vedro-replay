@@ -8,3 +8,5 @@ dist/
 .pypirc
 
 *.sh
+
+tests/e2e/.vedro

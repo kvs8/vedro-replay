@@ -43,7 +43,7 @@ options:
 $ vedro-replay genearate -h
 ```
 ```
-usage: vedro-replay generate [-h] [--path-requests PATH_REQUESTS] [--force] 
+usage: vedro-replay generate [-h] [--requests-dir REQUESTS_DIR] [--force] 
                     [{all,vedro_cfg,config,interfaces,contexts,helpers,helpers_methods,scenarios}] - by default all
 
 positional arguments:
@@ -52,29 +52,27 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --path-requests PATH_REQUESTS
+  --requests-dir REQUESTS_DIR
                         The path to the directory containing the request files
   --force               Forced regeneration. The files will be overwritten
 ```
 
-To be able to generate a test, you need to have a directory with files containing GET requests 
-(`requests` directory is expected by default, you can specify a specific directory using the `--path_requests` argument).
-_(So far only use of GET requests is possible)_
+To be able to generate a test, you need to have a directory with files containing requests 
+(`requests` directory is expected by default, you can specify a specific directory using the `--requests-dir` argument).
 
 Example:
 ```shell
 tests # Root directory
 |----requests
-|----|----byid.txt # File with API requests of the /byid method
-|----|----search.txt # File with API requests of the /search method
+|----|----byid.http # File with API requests of the /byid method
+|----|----search.http # File with API requests of the /search method
 ```
 
-Example of file contents:
+Example of file contents (for more information about the request format, see the following paragraph):
 ```shell
-$ cat requests/byid.txt
-/byid?id=123
-/byid?id=234
-...
+$ cat requests/byid.http
+### byid request with id=123
+GET http://{{host}}/byid?id=123
 ```
 Having requests, you can generate tests on them:
 ```shell
@@ -84,23 +82,46 @@ Example of generation:
 ```
 tests # Root directory
 |----requests
-|----|----byid.txt # File with API requests of the /byid method
-|----|----search.txt # File with API requests of the /search method
+|----|----byid.http # File with API requests of the /byid method
+|----|----search.http # File with API requests of the /search method
 |----contexts 
 |----helpers
 |----interfaces 
 |----scenarios # Testing scenarios
-|----|----byid.py # Scenario, using requests from a file requests/byid.txt
+|----|----byid.py # Scenario, using requests from a file requests/byid.http
 |----|----search.py
 |----config.py
 |----vedro.cfg.py
 ```
 
+### Request format
+The request format is based on 
+[format .http from jetbrains](https://www.jetbrains.com/help/idea/exploring-http-syntax.html)  
+The structure of the request has the following form:
+```shell
+### Comment
+Method Request-URI
+Header-field: Header-value
+
+JSON-Body
+```
+
+Rules:
+- Each request starts with a string with the characters "###" at the beginning.
+Also on the same line it is possible to write a comment (optional) to the query that will be output in the test being run.
+- http method must consist of capital letters
+- Request-URI should always have the format http(s)://{{host}}[path][query].
+The host looks like this, for the ability to send requests for tests using an http client inside the IDE Idea/Pycharm/...
+- Headers are optional
+- Json-body is optional
+
+Examples can be found [here](tests/unit/test_data/get_requests.http) and [here](tests/unit/test_data/post_requests.http)
+
 ### Running tests
 To run the tests, need two hosts to send requests to them. You need to set environment variables in any convenient way:
 ```shell
-GOLDEN_API_URL=http://master.app
-TESTING_API_URL=http://branch.app
+GOLDEN_API_URL=master.app
+TESTING_API_URL=branch.app
 ```
 
 After that, you can run the tests:

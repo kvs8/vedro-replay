@@ -1,0 +1,29 @@
+### Send POST request with json body
+POST https://{{host}}/post
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+###
+POST https://{{host}}/post
+
+{"id": 999, "value": "content"}
+
+### Send POST request with json body
+POST https://{{host}}/api/user/1
+Content-Type: application/json
+Authorization: Bearer 25b4fe6e-89d1-4b1a-8bd9-05624f7e7488
+
+{"name": "John Doe", "email": "johndoe@example.com", "data": {"key": "value"}}
+
+### Send a POST request with a comment in different languages to the json text
+POST https://{{host}}/articles/123/comments
+Content-Type: application/json
+
+{
+  "comment_en": "Great article! Thanks for sharing.",
+  "comment_rus": "Комментарий на русском"
+}
