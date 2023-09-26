@@ -1,7 +1,7 @@
 import logging
 import os
 from abc import ABC, abstractmethod
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from types import FunctionType
 from typing import Any, List
 
@@ -165,6 +165,7 @@ class MainGenerator(Generator):
         return [
             file for file in os.listdir(self.__requests_dir)
             if os.path.isfile(os.path.join(self.__requests_dir, file))
+            and PurePosixPath(file).suffix in ['.txt', '.http']
         ]
 
     def _get_route(self, file_path: str) -> str:
@@ -185,7 +186,7 @@ def generate(args: Any) -> None:
 
     try:
         getattr(MainGenerator(requests_dir=args.requests_dir, force=args.force, log=log), args.option)()
-        log.info("\nThe necessary files have been generated!\n"
+        log.info("The necessary files have been generated!\n"
                  "To run the tests, you need to specify two api url to which request will be sent."
                  "You need to set environment variables in any convenient way, for example:\n"
                  "export GOLDEN_API_URL=https://golden.app && export TESTING_API_URL=https://test.app && vedro run")

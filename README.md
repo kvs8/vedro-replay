@@ -115,7 +115,8 @@ The host looks like this, for the ability to send requests for tests using an ht
 - Headers are optional
 - Json-body is optional
 
-Examples can be found [here](tests/unit/test_data/get_requests.http) and [here](tests/unit/test_data/post_requests.http)
+Examples can be found [here](https://github.com/kvs8/vedro-replay/blob/main/tests/unit/test_data/get_requests.http) 
+and [here](https://github.com/kvs8/vedro-replay/blob/main/tests/unit/test_data/post_requests.http)
 
 ### Running tests
 To run the tests, need two hosts to send requests to them. You need to set environment variables in any convenient way:
@@ -140,4 +141,74 @@ def prepare_byid(response) -> Response: # Generated method for scenario byid.py
    exclude_headers = ['date'] # Date header exclusion
    exclude_body = ['meta.api_version'] # Excluding a field from the body
    return filter_response(JsonResponse(response), exclude_headers, exclude_body)
+```
+
+To ignore headers, simply specify their names separated by commas, for example:
+```python
+exclude_headers = ['header-name', 'x-header-name']
+```
+
+To exclude json fields from the response, use the following format:
+```json
+{
+  "meta": {
+    "api_version": "1.0.0",
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "chair"
+    },
+    {
+      "id": 2,
+      "name": "table"
+    }
+  ]
+}
+```
+
+Exclude by json keys:
+```python
+exclude_body = ['meta.api_version']
+```
+Result:
+```json
+{
+  "meta": {
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "chair"
+    },
+    {
+      "id": 2,
+      "name": "table"
+    }
+  ]
+}
+```
+
+Exclude for each list element:
+```python
+exclude_body = ['items.*.id']
+```
+Result:
+```json
+{
+  "meta": {
+    "api_version": "1.0.0",
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "name": "chair"
+    },
+    {
+      "name": "table"
+    }
+  ]
+}
 ```

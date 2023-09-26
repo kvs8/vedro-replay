@@ -19,3 +19,4 @@ async def testing_response(request: Request, prepare_response_method) -> Respons
     api = Api(Config.TESTING_API_URL)
     response = await api.do_request(request=request)
     return prepare_response_method(response)
+
