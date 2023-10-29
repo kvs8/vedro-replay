@@ -12,11 +12,11 @@ install-vedro-replay:
 
 .PHONY: e2e
 e2e:
-	cd tests/e2e && vedro run -vvv
+	cd tests/e2e && vedro run -v
 
 .PHONY: unit
 unit:
-	cd tests/unit && pytest
+	cd tests/unit && pytest -v
 
 .PHONY: check-types
 check-types:

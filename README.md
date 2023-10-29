@@ -138,7 +138,7 @@ Such values will not allow testing, so they must be cut from the comparison of t
 # helpers/helpers.py:
 
 def prepare_byid(response) -> Response: # Generated method for scenario byid.py
-   exclude_headers = ['date'] # Date header exclusion
+   exclude_headers = ['date'] # Date header exclude
    exclude_body = ['meta.api_version'] # Excluding a field from the body
    return filter_response(JsonResponse(response), exclude_headers, exclude_body)
 ```
@@ -157,18 +157,18 @@ To exclude json fields from the response, use the following format:
   },
   "items": [
     {
-      "id": 1,
+      "id": "1_abc",
       "name": "chair"
     },
     {
-      "id": 2,
+      "id": "2_sdv",
       "name": "table"
     }
   ]
 }
 ```
 
-Exclude by json keys:
+- Exclude by json keys:
 ```python
 exclude_body = ['meta.api_version']
 ```
@@ -180,18 +180,18 @@ Result:
   },
   "items": [
     {
-      "id": 1,
+      "id": "1_abc",
       "name": "chair"
     },
     {
-      "id": 2,
+      "id": "2_sdv",
       "name": "table"
     }
   ]
 }
 ```
 
-Exclude for each list element:
+- Exclude for each list element:
 ```python
 exclude_body = ['items.*.id']
 ```
@@ -212,3 +212,33 @@ Result:
   ]
 }
 ```
+
+- Exclude string value by regular expression
+```python
+exclude_body = ['items.*.id:\d+']
+```
+Result:
+```json
+{
+  "meta": {
+    "api_version": "1.0.0",
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "id": "1",
+      "name": "chair"
+    },
+    {
+      "id": "2",
+      "name": "table"
+    }
+  ]
+}
+```  
+  
+#### Rules exclude:
+- Dictionary keys are separated by a symbol '`.`'
+- If the value is a list and you need to bypass all the elements of the list, use the symbol '`*`'
+- The exclude path  and the regular expression are separated by a symbol '`:`'
+- If the path is not contained (or not completely) in the dictionary, nothing will be cut. Similarly, for a regular expression, if nothing was found for the regular expression, the value will not change

@@ -3,7 +3,7 @@ from typing import Any, Callable
 
 from vedro import params
 
-from .parser import parse_requests
+from .parse_requests import parse_requests
 
 
 def replay(requests_file: str) -> Callable[..., Any]:

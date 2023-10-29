@@ -7,7 +7,7 @@ from typing import Any, List
 
 from jinja2 import Environment, FileSystemLoader, Template
 
-from .parser import parse_requests
+from .parse_requests import parse_requests
 
 
 class GeneratorException(Exception):
