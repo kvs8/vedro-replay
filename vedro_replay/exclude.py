@@ -24,6 +24,8 @@ class Exclude:
                             data[current_path_part] = result[0]
                 else:
                     del data[current_path_part]
+            elif isinstance(data, list) and current_path_part.isdigit() and len(data) > int(current_path_part):
+                data.pop(int(current_path_part))
             return
 
         if isinstance(data, list) and current_path_part == '*':
