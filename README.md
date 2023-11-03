@@ -1,12 +1,15 @@
 # vedro-replay
 
+[![PyPI](https://img.shields.io/pypi/v/vedro-replay.svg?style=flat-square)](https://pypi.org/project/vedro-replay/)
+[![Python Version](https://img.shields.io/pypi/pyversions/vedro-replay.svg?style=flat-square)](https://pypi.org/project/vedro-replay/)
+
 ## Documentation
 
 ### replay-tests
 The idea is to test the API using requests that are sent to the production application. 
 Having requests, we can send them to the API of the test version and to the API of the stable version. 
 After receiving two responses from two versions of the application, you can compare the response status, headers, and body. 
-The stable version in this case is considered to work correctly and in case of a difference in the answers it means that there is a bug in the test version of the application.
+The stable version in this case is considered to work correctly and in case of a difference in the answers it means that there is a bug (or feature) in the test version of the application.
 
 ### vedro-replay
 Python package for working with replay tests on vedro (docs: [vedro.io](https://vedro.io/docs/quick-start)) framework. 
@@ -40,7 +43,7 @@ options:
 
 #### Generate vedro-replay tests
 ```shell
-$ vedro-replay genearate -h
+$ vedro-replay generate -h
 ```
 ```
 usage: vedro-replay generate [-h] [--requests-dir REQUESTS_DIR] [--force] 
@@ -138,17 +141,19 @@ Such values will not allow testing, so they must be cut from the comparison of t
 # helpers/helpers.py:
 
 def prepare_byid(response) -> Response: # Generated method for scenario byid.py
-   exclude_headers = ['date'] # Date header exclusion
+   exclude_headers = ['date'] # Date header exclude
    exclude_body = ['meta.api_version'] # Excluding a field from the body
    return filter_response(JsonResponse(response), exclude_headers, exclude_body)
 ```
 
-To ignore headers, simply specify their names separated by commas, for example:
+#### To ignore headers, simply specify their names separated by commas, for example:
 ```python
 exclude_headers = ['header-name', 'x-header-name']
 ```
 
-To exclude json fields from the response, use the following format:
+#### To exclude json fields from the response, use the format below
+
+Original response body:
 ```json
 {
   "meta": {
@@ -157,18 +162,18 @@ To exclude json fields from the response, use the following format:
   },
   "items": [
     {
-      "id": 1,
+      "id": "1_abc",
       "name": "chair"
     },
     {
-      "id": 2,
+      "id": "2_sdv",
       "name": "table"
     }
   ]
 }
 ```
 
-Exclude by json keys:
+- Exclude by json keys:
 ```python
 exclude_body = ['meta.api_version']
 ```
@@ -180,18 +185,18 @@ Result:
   },
   "items": [
     {
-      "id": 1,
+      "id": "1_abc",
       "name": "chair"
     },
     {
-      "id": 2,
+      "id": "2_sdv",
       "name": "table"
     }
   ]
 }
 ```
 
-Exclude for each list element:
+- Exclude for each list element:
 ```python
 exclude_body = ['items.*.id']
 ```
@@ -212,3 +217,33 @@ Result:
   ]
 }
 ```
+
+- Exclude string value by regular expression
+```python
+exclude_body = ['items.*.id:\d+']
+```
+Result:
+```json
+{
+  "meta": {
+    "api_version": "1.0.0",
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "id": "1",
+      "name": "chair"
+    },
+    {
+      "id": "2",
+      "name": "table"
+    }
+  ]
+}
+```  
+  
+#### Rules exclude:
+- Dictionary keys are separated by a symbol '`.`'
+- If the value is a list and you need to bypass all the elements of the list, use the symbol '`*`'
+- The exclude path  and the regular expression are separated by a symbol '`:`'
+- If the path is not contained (or not completely) in the dictionary, nothing will be cut. Similarly, for a regular expression, if nothing was found for the regular expression, the value will not change
