@@ -218,6 +218,26 @@ Result:
 }
 ```
 
+- Exclude list item by index:
+```python
+exclude_body = ['items.1']
+```
+Result:
+```json
+{
+  "meta": {
+    "api_version": "1.0.0",
+    "issue_date": "20230926"
+  },
+  "items": [
+    {
+      "id": "1_abc",
+      "name": "chair"
+    }
+  ]
+}
+```
+
 - Exclude string value by regular expression
 ```python
 exclude_body = ['items.*.id:\d+']
