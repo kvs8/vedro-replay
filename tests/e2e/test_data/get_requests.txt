@@ -1,2 +1,0 @@
-/1.0/secure-resource?q=123
-/1.0/secure-resource?q=example

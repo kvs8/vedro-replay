@@ -7,11 +7,10 @@ from vedro_replay import Request, replay
 
 
 class Scenario(vedro.Scenario):
-    subject = "do request: {{api_route}} (comment='{comment}')"
+    subject = "do request: {request.method} {request.path} (comment='{request.comment}')"
 
-    @replay("{{requests_dir}}/{{file_requests}}")
-    def __init__(self, comment: str, request: Request):
-        self.comment = comment
+    @replay("{{file_path_with_requests}}")
+    def __init__(self, request: Request):
         self.request = request
 
     async def given_golden_response(self):

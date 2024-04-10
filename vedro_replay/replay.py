@@ -10,8 +10,8 @@ def replay(requests_file: str) -> Callable[..., Any]:
     assert os.path.exists(requests_file)
 
     def wrapped(fn: Callable[..., Any]) -> Callable[..., Any]:
-        for request in parse_requests(requests_file):
-            params(request.comment, request)(fn)
+        for request in reversed(parse_requests(requests_file)):
+            params(request)(fn)
         return fn
 
     return wrapped

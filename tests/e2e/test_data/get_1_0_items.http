@@ -1,0 +1,5 @@
+### GET Request
+GET http://{{host}}/1.0/items
+
+###
+GET http://{{host}}/1.0/items?data=all&search=value
