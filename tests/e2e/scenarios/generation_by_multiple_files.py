@@ -1,4 +1,5 @@
 import os
+from operator import itemgetter
 
 import vedro
 from contexts import added_request_file, execution_directory, mocked_api
@@ -38,7 +39,10 @@ class Scenario(vedro.Scenario):
             dir_launch=self.dir_launch,
             dir_requests=self.dir_requests
         ).run()
-        self.generated_structure = [[a, d, f] for a, d, f in os.walk(self.dir_launch)]
+        self.generated_structure = sorted(
+            [[a, sorted(d), sorted(f)] for a, d, f in os.walk(self.dir_launch)],
+            key=itemgetter(0)
+        )
 
     async def when_replay_tests_running(self):
         async with mocked_api() as self.api_mock:
@@ -51,14 +55,14 @@ class Scenario(vedro.Scenario):
 
     def and_then_generated_project_structure_is_correct(self):
         assert self.generated_structure == from_native([
-            ['launch', ['contexts', 'helpers', 'requests', 'interfaces', 'scenarios'], ['vedro.cfg.py', 'config.py']],
+            ['launch', ['contexts', 'helpers', 'interfaces', 'requests', 'scenarios'], ['config.py', 'vedro.cfg.py']],
             ['launch/contexts', [], ['__init__.py', 'api.py']],
-            ['launch/helpers', [], ['helpers.py', '__init__.py']],
-            ['launch/requests', ['items', 'users'], ['get_secure_resource.http']],
-            ['launch/requests/items', [], ['get_1_1_items.txt', 'get_1_0_items.http']],
-            ['launch/requests/users', ['create'], []],
-            ['launch/requests/users/create', [], ['post_v2_admin_users.http', 'post_v1_users.http']],
+            ['launch/helpers', [], ['__init__.py', 'helpers.py']],
             ['launch/interfaces', [], ['__init__.py', 'api.py']],
+            ['launch/requests', ['items', 'users'], ['get_secure_resource.http']],
+            ['launch/requests/items', [], ['get_1_0_items.http', 'get_1_1_items.txt']],
+            ['launch/requests/users', ['create'], []],
+            ['launch/requests/users/create', [], ['post_v1_users.http', 'post_v2_admin_users.http']],
             ['launch/scenarios', ['items', 'users'], ['get_secure_resource.py']],
             ['launch/scenarios/items', [], ['get_1_0_items.py', 'get_1_1_items.py']],
             ['launch/scenarios/users', ['create'], []],
