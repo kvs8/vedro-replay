@@ -1,13 +1,11 @@
 import logging
 import os
 from abc import ABC, abstractmethod
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from types import FunctionType
 from typing import Any, List
 
 from jinja2 import Environment, FileSystemLoader, Template
-
-from .parse_requests import parse_requests
 
 
 class GeneratorException(Exception):
@@ -34,17 +32,17 @@ class Generator(ABC):
             with open(file_path, 'w') as file:
                 file.write(template.render(**kwargs))
 
-    def _create_package(self, dir_name: str) -> None:
-        self._create_dir(dir_name=dir_name)
-        init_file_path = f'{dir_name}/__init__.py'
+    def _create_package(self, dirname: str) -> None:
+        self._create_dir(dirname)
+        init_file_path = os.path.join(dirname, '__init__.py')
         if not os.path.exists(init_file_path):
             self.log.info(f'Create: "{init_file_path}"')
             Path(init_file_path).touch()
 
-    def _create_dir(self, dir_name: str) -> None:
-        if not os.path.exists(dir_name):
-            self.log.info(f'Create directory: "{dir_name}"')
-            os.mkdir(dir_name)
+    def _create_dir(self, dirname: str) -> None:
+        if dirname and not os.path.exists(dirname):
+            self.log.info(f'Create directory: "{dirname}"')
+            os.makedirs(dirname)
 
     @classmethod
     def generation_options(cls) -> List[str]:
@@ -54,7 +52,7 @@ class Generator(ABC):
 
 
 class MainGenerator(Generator):
-    __PATH_TEMPLATES = os.path.dirname(os.path.realpath(__file__)) + '/templates'
+    __PATH_TEMPLATES = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates')
     __TEMPLATE_INTERFACES = 'interfaces.py.j2'
     __TEMPLATE_SCENARIO = 'scenario.py.j2'
     __TEMPLATE_CONTEXTS = 'contexts.py.j2'
@@ -100,81 +98,76 @@ class MainGenerator(Generator):
         )
 
     def interfaces(self) -> None:
-        self._create_package(dir_name=self.__DIRECTORY_INTERFACES)
+        self._create_package(dirname=self.__DIRECTORY_INTERFACES)
         self._generate_by_template(
-            file_path=f'{self.__DIRECTORY_INTERFACES}/{self.__FILE_INTERFACES}',
+            file_path=os.path.join(self.__DIRECTORY_INTERFACES, self.__FILE_INTERFACES),
             template_name=self.__TEMPLATE_INTERFACES
         )
 
     def contexts(self) -> None:
-        self._create_package(dir_name=self.__DIRECTORY_CONTEXTS)
+        self._create_package(dirname=self.__DIRECTORY_CONTEXTS)
         self._generate_by_template(
-            file_path=f'{self.__DIRECTORY_CONTEXTS}/{self.__FILE_CONTEXTS}',
+            file_path=os.path.join(self.__DIRECTORY_CONTEXTS, self.__FILE_CONTEXTS),
             template_name=self.__TEMPLATE_CONTEXTS
         )
 
     def helpers(self) -> None:
-        self._create_package(dir_name=self.__DIRECTORY_HELPERS)
+        self._create_package(dirname=self.__DIRECTORY_HELPERS)
         self._generate_by_template(
-            file_path=f'{self.__DIRECTORY_HELPERS}/{self.__FILE_HELPERS}',
+            file_path=os.path.join(self.__DIRECTORY_HELPERS, self.__FILE_HELPERS),
             template_name=self.__TEMPLATE_HELPERS
         )
         self.helpers_methods()
 
     def helpers_methods(self) -> None:
-        file_path = f'{self.__DIRECTORY_HELPERS}/{self.__FILE_HELPERS}'
+        file_path = os.path.join(self.__DIRECTORY_HELPERS, self.__FILE_HELPERS)
 
         with open(file_path, 'r') as file:
             content_helpers = file.read()
 
         with open(file_path, 'a') as f:
-            for route in self._get_unique_routes():
-                helper_method_name = self._get_helper_method_name(route)
+            for file_with_requests in self._get_file_paths_with_requests():
+                helper_method_name = self._get_helper_method_name(file_with_requests)
                 if helper_method_name not in content_helpers:
-                    self.log.info(f'Generate helper: "{helper_method_name}" for route {route}')
+                    self.log.info(f'Generate helper: "{helper_method_name}" for file {file_with_requests}')
                     template = self._get_template(self.__TEMPLATE_HELPER_METHOD)
                     f.write(template.render(helper_method_name=helper_method_name))
 
     def scenarios(self) -> None:
         self._create_dir(self.__DIRECTORY_SCENARIOS)
-        for file_requests in self._get_file_with_requests():
-            self._scenario(file_requests=file_requests, route=self._get_route(file_requests))
+        for file_path_with_requests in self._get_file_paths_with_requests():
+            self._scenario(file_path_with_requests)
 
-    def _scenario(self, file_requests: str, route: str) -> None:
-        file_path = f'{self.__DIRECTORY_SCENARIOS}/{self._get_scenario_name(file_requests=file_requests)}.py'
+    def _scenario(self, file_path_with_requests: str) -> None:
+        dirname = os.path.dirname(file_path_with_requests.replace(f'{self.__requests_dir}/', '', 1))
+        self._create_dir(os.path.join(self.__DIRECTORY_SCENARIOS, dirname))
         self._generate_by_template(
-            file_path=file_path,
+            file_path=os.path.join(
+                self.__DIRECTORY_SCENARIOS, dirname, f'{self._get_scenario_name(file_path_with_requests)}.py'
+            ),
             template_name=self.__TEMPLATE_SCENARIO,
-            requests_dir=self.__requests_dir,
-            api_route=route,
-            file_requests=file_requests,
-            helper_method_name=self._get_helper_method_name(route)
+            file_path_with_requests=file_path_with_requests,
+            helper_method_name=self._get_helper_method_name(file_path_with_requests)
         )
 
-    @staticmethod
-    def _get_helper_method_name(api_route: str) -> str:
-        return 'prepare' + api_route.replace('/', '_').replace('.', '').replace('-', '_')
+    @classmethod
+    def _get_helper_method_name(cls, file_path_with_requests: str) -> str:
+        return 'prepare_' + cls._get_scenario_name(file_path_with_requests)
 
     @staticmethod
-    def _get_scenario_name(file_requests: str) -> str:
-        return file_requests.split('.')[0]
+    def _get_scenario_name(file_path_with_requests: str) -> str:
+        return os.path.basename(file_path_with_requests).split('.')[0].replace('-', '_')
 
-    def _get_file_with_requests(self) -> List[str]:
+    def _get_file_paths_with_requests(self) -> List[str]:
         if not os.path.exists(self.__requests_dir):
             raise DirectoryWithRequestsNotFound(f"The directory with requests: {self.__requests_dir} was not found")
-        return [
-            file for file in os.listdir(self.__requests_dir)
-            if os.path.isfile(os.path.join(self.__requests_dir, file))
-            and PurePosixPath(file).suffix in ['.txt', '.http']
-        ]
 
-    def _get_route(self, file_path: str) -> str:
-        requests = parse_requests(f'{self.__requests_dir}/{file_path}')
-        return requests[0].path
-
-    def _get_unique_routes(self) -> List[str]:
-        routes = [self._get_route(file_requests) for file_requests in self._get_file_with_requests()]
-        return sorted(set(routes))
+        file_with_requests = []
+        for root, _, files in os.walk(self.__requests_dir):
+            for file in files:
+                if file.endswith('.txt') or file.endswith('.http'):
+                    file_with_requests.append(os.path.join(root, file))
+        return file_with_requests
 
     def _get_template(self, template_name: str) -> Template:
         return self.__templates.get_template(name=template_name)
@@ -189,7 +182,7 @@ def generate(args: Any) -> None:
         log.info("The necessary files have been generated!\n"
                  "To run the tests, you need to specify two api url to which request will be sent."
                  "You need to set environment variables in any convenient way, for example:\n"
-                 "export GOLDEN_API_URL=https://golden.app && export TESTING_API_URL=https://test.app && vedro run")
+                 "GOLDEN_API_URL=https://golden.app TESTING_API_URL=https://test.app vedro run -v")
     except DirectoryWithRequestsNotFound as e:
         log.critical(f"{e}. By default, the 'requests' directory was expected. "
                      "Use --requests-dir to specify another")

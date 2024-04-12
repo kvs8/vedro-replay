@@ -12,8 +12,16 @@ class Request:
         self.method = method
         self.url = url
         self.path = urlparse(url).path
-        self.headers = headers
+        self.headers = headers or {}
         self.json_body = json_body
+
+    def add_header(self, key: str, value: str) -> "Request":
+        self.headers[key] = value
+        return self
+
+    def add_json_body(self, json_body: Dict[Any, Any]) -> "Request":
+        self.json_body = json_body
+        return self
 
     def __repr__(self) -> str:
         return self.__str__()

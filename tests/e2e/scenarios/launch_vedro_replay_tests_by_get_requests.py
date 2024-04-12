@@ -1,7 +1,8 @@
+import os
 from typing import List
 
 import vedro
-from contexts import execution_directory, mocked_api
+from contexts import added_request_file, execution_directory, mocked_api
 from interfaces import VedroReplayCLI, VedroTestCLI
 from jj_district42 import HistorySchema
 from vedro import params
@@ -14,30 +15,30 @@ class Scenario(vedro.Scenario):
 
     @params('.txt file',
             'requests',
-            'get_requests.txt',
+            'get_1_1_items.txt',
             [
                 Request(
                     method="GET",
-                    url="/1.0/secure-resource?q=123",
+                    url="/1.1/items?q=123",
                 ),
                 Request(
                     method="GET",
-                    url="/1.0/secure-resource?q=example",
+                    url="/1.1/items?q=example",
                 ),
             ]
             )
     @params('.http file. Generate with --requests-dir',
             'special_requests',
-            'get_requests.http',
+            'get_1_0_items.http',
             [
                 Request(
                     comment='GET Request',
                     method="GET",
-                    url="/1.0/secure-resource",
+                    url="/1.0/items",
                 ),
                 Request(
                     method="GET",
-                    url="/1.0/secure-resource?data=all&search=value",
+                    url="/1.0/items?data=all&search=value",
                 ),
             ]
             )
@@ -49,11 +50,10 @@ class Scenario(vedro.Scenario):
         self.requests = requests
 
     def given_prepared_execution_directory(self):
-        execution_directory(
-            dir_launch=self.dir_launch,
-            dir_requests=self.dir_requests,
-            file_requests=self.file_requests,
-        )
+        execution_directory(dir_launch=self.dir_launch)
+
+    def given_added_file_with_requests(self):
+        added_request_file(os.path.join(self.dir_launch, self.dir_requests, self.file_requests))
 
     async def given_vedro_replay_tests(self):
         self.stdout_vedro_replay, self.stderr_vedro_replay = await VedroReplayCLI(
@@ -69,7 +69,8 @@ class Scenario(vedro.Scenario):
 
     def then_test_was_started_with_correct_subject(self):
         for request in self.requests:
-            assert f"do request: {request.path} (comment='{request.comment}')" in self.stdout_vedro_test
+            subject = f"do request: {request.method} {request.path} (comment='{request.comment}')"
+            assert subject in self.stdout_vedro_test
 
     def and_then_number_requests_sent_should_be_correct(self):
         assert self.api_mock.history == HistorySchema % [
@@ -78,5 +79,5 @@ class Scenario(vedro.Scenario):
                     'method': request.method,
                     'path': request.path,
                 }
-            } for request in [r for r in self.requests for _ in range(2)]
+            } for request in [r for r in reversed(self.requests) for _ in range(2)]
         ]
