@@ -8,7 +8,7 @@ def find_required():
 
 setup(
     name="vedro-replay",
-    version="1.1.0",
+    version="1.2.0",
     description="vedro-replay package",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
