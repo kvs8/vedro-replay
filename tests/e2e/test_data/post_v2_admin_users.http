@@ -24,3 +24,16 @@ Content-Type: application/json
     }
   ]
 }
+
+### Request by IDs
+POST http://{{host}}/v2/admin-users
+Content-Type: application/json
+
+[
+  {
+    "id": 1
+  },
+  {
+    "id": 2
+  }
+]

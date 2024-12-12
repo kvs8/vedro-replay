@@ -1,12 +1,16 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlparse
 
 
 class Request:
     def __init__(
-            self, method: str, url: str,
-            comment: str = "", headers: Optional[Dict[Any, Any]] = None, json_body: Optional[Dict[Any, Any]] = None
+        self,
+        method: str,
+        url: str,
+        comment: str = "",
+        headers: Optional[Dict[Any, Any]] = None,
+        json_body: Optional[Union[Dict[Any, Any], List[Any]]] = None
     ) -> None:
         self.comment = comment
         self.method = method
@@ -19,7 +23,7 @@ class Request:
         self.headers[key] = value
         return self
 
-    def add_json_body(self, json_body: Dict[Any, Any]) -> "Request":
+    def add_json_body(self, json_body: Union[Dict[Any, Any], List[Any]]) -> "Request":
         self.json_body = json_body
         return self
 

@@ -70,7 +70,7 @@ class HttpRequestParser(RequestParser):
         lambda t: {h["key"]: h["value"] for h in t})
 
     json_body = Combine(
-        "{" +
+        Word("{[") +
         Optional(Suppress("\n")) +
         OneOrMore(CharsNotIn("\n") + Optional(Suppress("\n")))
     ).set_results_name("json_body")

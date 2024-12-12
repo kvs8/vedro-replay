@@ -27,3 +27,22 @@ Content-Type: application/json
   "comment_en": "Great article! Thanks for sharing.",
   "comment_rus": "Комментарий на русском"
 }
+
+### Send a POST request with a body list of numbers
+POST https://{{host}}/
+Content-Type: application/json
+
+[1,2,3]
+
+### Send a POST request with a body list of objects
+POST https://{{host}}/post
+Content-Type: application/json
+
+[
+  {
+    "id": 1
+  },
+  {
+    "id": 2
+  }
+]
