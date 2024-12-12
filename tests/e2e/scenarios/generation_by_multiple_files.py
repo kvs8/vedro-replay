@@ -3,7 +3,7 @@ from operator import itemgetter
 
 import vedro
 from contexts import added_request_file, execution_directory, mocked_api
-from d42 import from_native
+from d42.utils import from_native
 from interfaces import VedroReplayCLI, VedroTestCLI
 
 

@@ -4,7 +4,7 @@ from typing import List
 import vedro
 from contexts import added_request_file, execution_directory, mocked_api
 from interfaces import VedroReplayCLI, VedroTestCLI
-from jj_district42 import HistorySchema
+from jj_d42 import HistorySchema
 from vedro import params
 
 from vedro_replay.request import Request
