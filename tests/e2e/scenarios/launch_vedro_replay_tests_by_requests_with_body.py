@@ -35,6 +35,12 @@ class Scenario(vedro.Scenario):
                         ]
                     }
                 ),
+                Request(
+                    comment='Request by IDs',
+                    method="POST",
+                    url="http://{{host}}/v2/admin-users",
+                    json_body=[{"id": 1}, {"id": 2}]
+                ),
             ]
             )
     def __init__(self, dir_request: str, file_requests: str, requests: List[Request]):

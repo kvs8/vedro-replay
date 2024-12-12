@@ -119,6 +119,20 @@ from vedro_replay import Request, parse_requests
                         "comment_rus": "Комментарий на русском"
                     }
                 ),
+                Request(
+                    comment="Send a POST request with a body list of numbers",
+                    method="POST",
+                    url="/",
+                    headers={'Content-Type': 'application/json'},
+                    json_body=[1, 2, 3]
+                ),
+                Request(
+                    comment="Send a POST request with a body list of objects",
+                    method="POST",
+                    url="/post",
+                    headers={'Content-Type': 'application/json'},
+                    json_body=[{"id": 1}, {"id": 2}]
+                ),
             ]
     ),
 ])

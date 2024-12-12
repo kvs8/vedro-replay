@@ -51,7 +51,7 @@ class Scenario(vedro.Scenario):
             ).run()
 
     def then_tests_ended_with_correct_statistics(self):
-        assert '# 9 scenarios, 9 passed, 0 failed, 0 skipped' in self.stdout_vedro_test
+        assert '# 10 scenarios, 10 passed, 0 failed, 0 skipped' in self.stdout_vedro_test
 
     def and_then_generated_project_structure_is_correct(self):
         assert self.generated_structure == from_native([
